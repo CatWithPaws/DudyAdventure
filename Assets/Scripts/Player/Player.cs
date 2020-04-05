@@ -5,6 +5,9 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerAnimationComponent))]
 public class Player : MonoBehaviour
 {
+    public static UnityEngine.Events.UnityEvent OnCollisionWithCeilingEnter = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorEnter = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorExit = new UnityEngine.Events.UnityEvent();
     public enum State
     {
         IDLE,
@@ -22,6 +25,7 @@ public class Player : MonoBehaviour
     {
         playerAnimation = GetComponent<PlayerAnimationComponent>();
         playerMove = GetComponent<PlayerMoveComponent>();
+
     }
 
     private void FixedUpdate()
