@@ -6,10 +6,10 @@ public class GroundCheker : MonoBehaviour
 {
 	private void OnTriggerStay2D(Collider2D collision)
 	{
-		Player.OnCollisionWithFloorStay.Invoke();
+		Player.OnCollisionWithFloorStayEvent.Invoke();
 	}
 	private void OnTriggerExit2D(Collider2D collision)
 	{
-		Player.OnCollisionWithFloorExit.Invoke();
+		Player.OnCollisionWithFloorExitEvent.Invoke();
 	}
 }

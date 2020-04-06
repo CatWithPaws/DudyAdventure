@@ -7,11 +7,14 @@
     private int countOfAdditionalJumps, maxCountOfAdditionalJumps = 1;
     float BlockValue = 2;    bool isJumpJustPressed,isJumpJustReleased, isDashJustPressed, isTeleportJustPressed;    private void Start()    {        Move[(int)Player.State.IDLE] = MoveInIdle;        Move[(int)Player.State.WALK] = MoveInWalk;        Move[(int)Player.State.JUMP] = MoveInJump;        Move[(int)Player.State.FALL] = MoveInFall;        Move[(int)Player.State.DASH] = MoveInDash;
 
-        jumpKey = KeyCode.C;        dashKey = KeyCode.Z;        teleportKey = KeyCode.X;        countOfAdditionalJumps = maxCountOfAdditionalJumps;        rigidbody = GetComponent<Rigidbody2D>();        collider = GetComponent<Collider2D>();        velocity = new Vector2();        Player.OnCollisionWithCeilingEnter.AddListener(OnCollisionCeiling);        Player.OnCollisionWithFloorStay.AddListener(OnCollisionFloorStay);        Player.OnCollisionWithFloorExit.AddListener(OnCollisionFloorExit);    }
+        jumpKey = KeyCode.C;        dashKey = KeyCode.Z;        teleportKey = KeyCode.X;        countOfAdditionalJumps = maxCountOfAdditionalJumps;        rigidbody = GetComponent<Rigidbody2D>();        collider = GetComponent<Collider2D>();        velocity = new Vector2();        Player.OnCollisionWithCeilingEnterEvent.AddListener(OnCollisionCeiling);        Player.OnCollisionWithFloorStayEvent.AddListener(OnCollisionFloorStay);        Player.OnCollisionWithFloorExitEvent.AddListener(OnCollisionFloorExit);    }
     private void CalculatePhysicsVariables()
     {
         gravity = 2 * max_jump_height * BlockValue / (jumping_time * jumping_time);        min_jump_velocity = Mathf.Sqrt(gravity * min_jump_height * BlockValue);        max_jump_velocity = Mathf.Sqrt(gravity * max_jump_height * BlockValue);
-    }    /// <summary>    /// Move Player and take a state in parameters    /// </summary>    /// <param name="state" description="Player's State after moving"></param>    public void MovePlayer(out Player.State state,ref float directionByX)    {        CalculatePhysicsVariables();        UpdateCheckDependencies(out directionByX);        state = GetState(ref directionByX);        Move[(int)state]();                rigidbody.velocity = velocity;        lastPos = transform.position;    }    public void OnCollisionCeiling() => velocity.y = 0;    public void OnCollisionFloorStay()
+    }    /// <summary>    /// Move Player and take a state in parameters    /// </summary>    /// <param name="state" description="Player's State after moving"></param>    public void MovePlayer(out Player.State state,ref float directionByX)    {
+        isJumpJustPressed = Input.GetKeyDown(jumpKey);
+        isJumpJustReleased = Input.GetKeyUp(jumpKey);
+        isDashJustPressed = Input.GetKeyDown(dashKey);        CalculatePhysicsVariables();        UpdateCheckDependencies(out directionByX);        state = GetState(ref directionByX);        Move[(int)state]();                rigidbody.velocity = velocity;        lastPos = transform.position;    }    public void OnCollisionCeiling() => velocity.y = 0;    public void OnCollisionFloorStay()
     {
         isGrounded = true;
         countOfAdditionalJumps = maxCountOfAdditionalJumps;
@@ -73,8 +76,6 @@
                );
     }    public void CheckInput()
     {
-        isJumpJustPressed = Input.GetKeyDown(jumpKey);
-        isJumpJustReleased = Input.GetKeyUp(jumpKey);
-        isDashJustPressed = Input.GetKeyDown(dashKey);
+        
         isTeleportJustPressed = Input.GetKeyDown(teleportKey);
     }}

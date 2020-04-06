@@ -1,13 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerMoveComponent))]
 [RequireComponent(typeof(PlayerAnimationComponent))]
 public class Player : MonoBehaviour
 {
-    public static UnityEngine.Events.UnityEvent OnCollisionWithCeilingEnter = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorStay = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorExit = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnCollisionWithCeilingEnterEvent = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorStayEvent = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorExitEvent = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnPlayerDeadEvent = new UnityEngine.Events.UnityEvent();
+
     public enum State
     {
         IDLE,
@@ -23,6 +26,7 @@ public class Player : MonoBehaviour
     private float directionByX;
     private void Awake()
     {
+        OnPlayerDeadEvent.AddListener(OnPlayerDead);
         playerAnimation = GetComponent<PlayerAnimationComponent>();
         playerMove = GetComponent<PlayerMoveComponent>();
 
@@ -39,4 +43,10 @@ public class Player : MonoBehaviour
     {
         playerAnimation.AnimatePlayer(ref currentState,ref directionByX);
     }
+
+    private void OnPlayerDead()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
 }
