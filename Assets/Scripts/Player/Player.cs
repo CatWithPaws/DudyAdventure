@@ -6,7 +6,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public static UnityEngine.Events.UnityEvent OnCollisionWithCeilingEnter = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorEnter = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorStay = new UnityEngine.Events.UnityEvent();
     public static UnityEngine.Events.UnityEvent OnCollisionWithFloorExit = new UnityEngine.Events.UnityEvent();
     public enum State
     {
@@ -27,7 +27,10 @@ public class Player : MonoBehaviour
         playerMove = GetComponent<PlayerMoveComponent>();
 
     }
-
+    private void Update()
+    {
+        playerMove.CheckInput();
+    }
     private void FixedUpdate()
     {
         playerMove.MovePlayer(out currentState,ref directionByX);

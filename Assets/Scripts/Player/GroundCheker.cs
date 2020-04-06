@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class GroundCheker : MonoBehaviour
 {
-	private void OnTriggerEnter2D(Collider2D collision)
+	private void OnTriggerStay2D(Collider2D collision)
 	{
-		Player.OnCollisionWithFloorEnter.Invoke();
+		Player.OnCollisionWithFloorStay.Invoke();
 	}
 	private void OnTriggerExit2D(Collider2D collision)
 	{
