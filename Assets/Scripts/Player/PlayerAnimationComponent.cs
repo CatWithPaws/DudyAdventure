@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerAnimationComponent : MonoBehaviour
 {
 	[SerializeField] private Animator playerAnimator;
-	private string[] AnimateNames = new string[5];
+	private string[] AnimateNames = new string[7];
 
 	private void Awake()
 	{
@@ -14,6 +14,7 @@ public class PlayerAnimationComponent : MonoBehaviour
 		AnimateNames[(int)Player.State.WALK] = "Walk";
 		AnimateNames[(int)Player.State.JUMP] = "Jump";
 		AnimateNames[(int)Player.State.FALL] = "Fall";
+		AnimateNames[(int)Player.State.DIALOG] = "Idle";	
 	}
 
 	public void AnimatePlayer(ref Player.State state,ref float directionByX)

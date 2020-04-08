@@ -10,6 +10,8 @@ public class GroundCheker : MonoBehaviour
 	}
 	private void OnTriggerExit2D(Collider2D collision)
 	{
+		Collider2D[] col = new Collider2D[1];
+		col[0] = collision;
 		Player.OnCollisionWithFloorExitEvent.Invoke();
 	}
 }

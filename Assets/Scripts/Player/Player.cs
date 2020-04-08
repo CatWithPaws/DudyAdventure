@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
     public static UnityEngine.Events.UnityEvent OnCollisionWithFloorStayEvent = new UnityEngine.Events.UnityEvent();
     public static UnityEngine.Events.UnityEvent OnCollisionWithFloorExitEvent = new UnityEngine.Events.UnityEvent();
     public static UnityEngine.Events.UnityEvent OnPlayerDeadEvent = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnDialogStarted = new UnityEngine.Events.UnityEvent();
+    public static UnityEngine.Events.UnityEvent OnDialogEnded = new UnityEngine.Events.UnityEvent();
 
     public enum State
     {
@@ -17,7 +19,8 @@ public class Player : MonoBehaviour
         WALK,
         JUMP,
         FALL,
-        DASH
+        DASH,
+        DIALOG
     }
 
     [SerializeField] private PlayerMoveComponent playerMove;
@@ -34,6 +37,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
         playerMove.CheckInput();
+        playerMove.CatchMove();
     }
     private void FixedUpdate()
     {
