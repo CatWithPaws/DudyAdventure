@@ -12,10 +12,12 @@ public class Dialogue : MonoBehaviour
 {
 	public static Dialogue Instance;
 	[SerializeField] private KeyCode nextReplicKey = KeyCode.Space;
-	[SerializeField] private Text dialogueTitle,dialogueText;
-	[SerializeField] private GameObject GuideButton;
+	[SerializeField] private GameObject guideButton;
+	[SerializeField] private DialogTextScript dialogWindow;
+	[SerializeField] private DialogChooseWindow dialogChoose;
 	bool canPass = false;
-
+	int answer = 0;
+	bool isAnswerJustPressed = false;
 	private void Awake()
 	{
 		if(Instance == null)
@@ -23,16 +25,27 @@ public class Dialogue : MonoBehaviour
 			Instance = this;
 			gameObject.SetActive(false);
 		}
+		EventHolder.OnGUIDialogStarted.AddListener(OpenDialogText);
 	}
 
 	private void Update()
 	{
 		if (Input.GetKeyDown(nextReplicKey)) canPass = true;
 	}
+	private void  OpenDialogText()
+	{
+		dialogChoose.gameObject.SetActive(false);
+		dialogWindow.gameObject.SetActive(true);
+	}
 
-	private IEnumerator DialogueSession(TextAsset textAsset) { 
-	
-		Player.OnDialogStarted.Invoke();
+	private void OpenDialogChoose()
+	{
+		dialogChoose.gameObject.SetActive(true);
+		dialogWindow.gameObject.SetActive(false);
+	}
+	private IEnumerator DialogueSession(TextAsset textAsset) {
+
+		EventHolder.OnGUIDialogStarted.Invoke();
 		Queue<Replic> replics;
 		replics = JsonConvert.DeserializeObject<Queue<Replic>>(textAsset.text);
 		{
@@ -41,28 +54,60 @@ public class Dialogue : MonoBehaviour
 			{
 				canPass = false;
 				Replic replic = replics.Dequeue();
-				dialogueTitle.text = replic.Title;
-				dialogueText.text = "";
+				dialogWindow.dialogueTitle.text = replic.Title;
+				dialogWindow.dialogueText.text = "";
 				foreach (char letter in replic.Text)
 				{
 					if (canPass) break;
-					dialogueText.text += letter;
+					dialogWindow.dialogueText.text += letter;
 					yield return new WaitForSeconds(.03f);
 				}
-				GuideButton.SetActive(true);
+				guideButton.SetActive(true);
 				while (!canPass)
 				{
 					yield return new WaitForEndOfFrame();
 				}
-				GuideButton.SetActive(false);
+				guideButton.SetActive(false);
 				yield return null;
+				if(replic.Command == "choice") {
+					OpenDialogChoose();
+					
+					Text chooseDialogText = dialogChoose.text;
+					chooseDialogText.text = "";
+					foreach (char letter in replic.Text)
+					{
+						chooseDialogText.text += letter;
+						yield return new WaitForSeconds(.03f);
+					}
+					for (int i = 0; i < replic.Choices.Length;i++)
+					{
+						GameObject chooseButton = dialogChoose.Buttons[i];
+						chooseButton.GetComponentInChildren<Text>().text = replic.Choices[i];
+						chooseButton.SetActive(true);
+					}
+					while (true)
+					{
+						if (isAnswerJustPressed)
+						{
+							isAnswerJustPressed = false;
+							TextAsset dialogText = Resources.Load("DialoguesScripts/" + textAsset.name + answer.ToString()) as TextAsset;
+							StartDialog(ref dialogText);
+						}
+						yield return new WaitForEndOfFrame();
+					}
+				}
 			}
 			yield return null;
 		}
 		gameObject.SetActive(false);
-		Player.OnDialogEnded.Invoke();
+		EventHolder.OnGUIDialogEnded.Invoke();
 	}
 
+	public void Answer(int _answer)
+	{
+		answer = _answer;
+		isAnswerJustPressed = true;
+	}
 
 	public void StartDialog(ref TextAsset textAsset)
 	{
@@ -73,5 +118,6 @@ public class Dialogue : MonoBehaviour
 [System.Serializable]
 class Replic
 {
-	public string Title, Text;
+	public string Title, Text, Command;
+	public string[] Choices;
 }

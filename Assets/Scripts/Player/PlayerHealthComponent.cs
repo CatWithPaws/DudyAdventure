@@ -12,7 +12,7 @@ public class PlayerHealthComponent : MonoBehaviour
         
         if(collision.gameObject.layer == whatIsDangerous)
         {
-            Player.OnPlayerDeadEvent.Invoke();
+            EventHolder.OnPlayerDeadEvent.Invoke();
             print("COollll");
         }
     }

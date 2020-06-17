@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerMoveComponent))]
 [RequireComponent(typeof(PlayerAnimationComponent))]
+
+public class IntEvent : UnityEngine.Events.UnityEvent<int>
+{
+
+}
+
 public class Player : MonoBehaviour
 {
-    public static UnityEngine.Events.UnityEvent OnCollisionWithCeilingEnterEvent = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorStayEvent = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnCollisionWithFloorExitEvent = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnPlayerDeadEvent = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnDialogStarted = new UnityEngine.Events.UnityEvent();
-    public static UnityEngine.Events.UnityEvent OnDialogEnded = new UnityEngine.Events.UnityEvent();
+    
 
     public enum State
     {
@@ -20,25 +21,78 @@ public class Player : MonoBehaviour
         JUMP,
         FALL,
         DASH,
+        WALL_JUMP,
+        SLIDE_ON_WALL,
         DIALOG
     }
 
     [SerializeField] private PlayerMoveComponent playerMove;
     [SerializeField] private PlayerAnimationComponent playerAnimation;
+    [SerializeField] private GameObject PressFText;
+    [SerializeField] private GameObject SpawnPoint;
+    [SerializeField] private GameObject PauseMenu;
+    [SerializeField] private AudioSource Music;
+    private bool isInPause =  false;
+    [SerializeField]
     private State currentState;
+    public State CurrentState
+    {
+        get
+        {
+            return currentState;
+        }
+        private set
+        {
+            currentState = value;
+        }
+    }
     private float directionByX;
     private void Awake()
     {
-        OnPlayerDeadEvent.AddListener(OnPlayerDead);
+        EventHolder.OnPlayerDeadEvent.AddListener(OnPlayerDead);
+        EventHolder.OnGUIDialogStarted.AddListener(DisablePressFText);
+        EventHolder.OnGUIDialogEnded.AddListener(EnablePressFText);
         playerAnimation = GetComponent<PlayerAnimationComponent>();
         playerMove = GetComponent<PlayerMoveComponent>();
-
+        StopCoroutine(Timer());
+        StartCoroutine(Timer());
+        ApplyAudio();
+        FileManager.Instance?.LoadSettings();
+        if (MusicObject.Instance)
+        {
+            AudioSource audioSource = MusicObject.Instance.audioSource;
+            audioSource.volume = GlobalVars.Instance.GetSettingData().MusicVolume;
+            MusicObject.Instance?.PlayMusic();
+        }
     }
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+           
+            TogglePause();
+        }
+        Time.timeScale = isInPause ? 0 : 1;
+
         playerMove.CheckInput();
         playerMove.CatchMove();
+        print(currentState);
     }
+
+    private void TogglePause()
+    {
+        isInPause = !isInPause;
+        if (isInPause)
+        {
+            FileManager.Instance.LoadSettings();
+            PauseMenu pauseMenu = PauseMenu.GetComponent<PauseMenu>();
+            pauseMenu.MusicVolumeSlider.value = GlobalVars.Instance.SettingsData.MusicVolume;
+            pauseMenu.SFXVolumeSlider.value = GlobalVars.Instance.SettingsData.SFXVolume;
+        }
+        PauseMenu.SetActive(isInPause);
+
+    }
+
+    
     private void FixedUpdate()
     {
         playerMove.MovePlayer(out currentState,ref directionByX);
@@ -50,7 +104,70 @@ public class Player : MonoBehaviour
 
     private void OnPlayerDead()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        gameObject.transform.position = SpawnPoint.transform.position;
+        if (!GlobalVars.Instance) return;
+        GlobalVars.Instance.SaveData.Deaths++;
+        FileManager.Instance.SaveGame();
+    }
+    private void DisablePressFText()
+    {
+        SetActivePressFButton(false);
+    }
+    private void EnablePressFText()
+    {
+        SetActivePressFButton(true);
+    }
+    public void SetActivePressFButton(bool value)
+    {
+        PressFText.SetActive(value);
+    }
+
+    public void RestoreCanTeleport()
+    {
+        playerMove.RestoreTeleport();
+    }
+    public bool CanTeleport()
+    {
+        return playerMove.canTeleport;
+    }
+    private IEnumerator Timer()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+            GlobalVars.Instance?.IncreasePlayedTime();
+        }
+    }
+    private void StopTime() => Time.timeScale = 0;
+    private void ResumeTime() => Time.timeScale = 1;
+    
+    public void ReturnToMenu() {
+        ResumeTime();
+        SceneManager.LoadScene("Menu");
+    }
+    public void ResumeGame()
+    {
+        ResumeTime();
+        TogglePause();
+    }
+
+    public void OnMusicSliderChanged(UnityEngine.UI.Slider slider)
+    {
+        GlobalVars.Instance.SettingsData.MusicVolume = slider.value;
+        FileManager.Instance.SaveSettings();
+        ApplyAudio();
+    }
+    public void OnSFXSliderChanged(UnityEngine.UI.Slider slider)
+    {
+        GlobalVars.Instance.SettingsData.SFXVolume = slider.value;
+        FileManager.Instance.SaveSettings();
+        ApplyAudio();
+    }
+
+    public void ApplyAudio()
+    {
+        if (MusicObject.Instance == null) return;
+        MusicObject.Instance.audioSource.volume = GlobalVars.Instance.SettingsData.MusicVolume;
     }
 
 }

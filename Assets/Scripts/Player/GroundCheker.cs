@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class GroundCheker : MonoBehaviour
 {
+	[SerializeField] private LayerMask whatIsGround;
 	private void OnTriggerStay2D(Collider2D collision)
 	{
-		Player.OnCollisionWithFloorStayEvent.Invoke();
+		if (!collision.isTrigger)
+		{
+			EventHolder.OnPlayerCollisionWithFloorStayEvent.Invoke();
+	}
 	}
 	private void OnTriggerExit2D(Collider2D collision)
 	{
-		Collider2D[] col = new Collider2D[1];
-		col[0] = collision;
-		Player.OnCollisionWithFloorExitEvent.Invoke();
+		if (!collision.isTrigger) {
+			EventHolder.OnPlayerCollisionWithFloorExitEvent.Invoke();	
+		}
 	}
 }
