@@ -5,6 +5,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Camera))]
 public class CameraFollow : MonoBehaviour
 {
+    //need to restrict for camera's move
+    [SerializeField] private bool RestrictMode = true;
+
     [Header("CameraFollow")]
     [SerializeField] float _dampTime = 0.15f;
     private Vector3 _velocity = Vector3.zero;
@@ -17,6 +20,10 @@ public class CameraFollow : MonoBehaviour
     private void Start()
     {
         _camera = GetComponent<Camera>();
+        if(_target == null)
+		{
+            _target = FindObjectOfType<Player>().transform;
+		}
     }
     void LateUpdate()
     {
@@ -29,10 +36,12 @@ public class CameraFollow : MonoBehaviour
             //Make smooth transition from current camera position to target position
             Vector3 willCameraPosition = Vector3.LerpUnclamped(cameraPoint, new Vector3(targetPoint.x,targetPoint.y,cameraPoint.z), Time.deltaTime * 5);
 
-            //Clamping area to restrict camera move on no playable places
-            willCameraPosition.x = Mathf.Clamp(willCameraPosition.x, restrictBottomLeftSide.x, restrictTopRightSide.x);
-            willCameraPosition.y = Mathf.Clamp(willCameraPosition.y, restrictBottomLeftSide.y, restrictTopRightSide.y);
-
+            if (RestrictMode == true)
+            {
+                //Clamping area to restrict camera move on no playable places
+                willCameraPosition.x = Mathf.Clamp(willCameraPosition.x, restrictBottomLeftSide.x, restrictTopRightSide.x);
+                willCameraPosition.y = Mathf.Clamp(willCameraPosition.y, restrictBottomLeftSide.y, restrictTopRightSide.y);
+            }
             //Set camera position
             _camera.transform.position = willCameraPosition;
 

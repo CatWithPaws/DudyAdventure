@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.IO;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MenuButtons : MonoBehaviour
 {
@@ -93,7 +94,10 @@ public class MenuButtons : MonoBehaviour
         if (!isSavePanelOnceOpened) isSavePanelOnceOpened = true; CheckSaves();
     }
 
-
+    public void LoadOldLevels()
+	{
+        SceneManager.LoadScene(3);
+	}
     public void OnMusicVolumeValueChanged(Slider slider)
     {
         GlobalVars.Instance.SettingsData.MusicVolume = slider.value;
@@ -135,7 +139,7 @@ public class MenuButtons : MonoBehaviour
         DeleteButtons[whichSave].SetActive(true);
 
         SaveData saveData = FileManager.Instance.GetSaveData(whichSave);
-        Values values = SaveDatas[whichSave].GetComponentInChildren<Values>();
+        SaveValues values = SaveDatas[whichSave].GetComponentInChildren<SaveValues>();
         TextAsset textAsset = Resources.Load<TextAsset>("LocationName");
         string[] names = textAsset.text.Split('/');
         string locationName = names[saveData.Level];
