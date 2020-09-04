@@ -21,6 +21,8 @@ public class MenuButtons : MonoBehaviour
 
     public static UnityEvent OnSettingsChanged = new UnityEvent();
 
+    public static UnityEvent OnGameExit = new UnityEvent();
+
     private bool isOpenSavePanel = false, isOpenSettingsPanel = false,  canSwitchAnimationInSavePanel = true,canSwitchAnimationInSettings = true;
     private bool isSavePanelOnceOpened = false;
     [SerializeField] private Animator SavePanelAnimator;

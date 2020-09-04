@@ -6,8 +6,21 @@ using UnityEngine;
 public class PlayerMoveComponent : MonoBehaviour
 {
     private const int countOfStates = 10;
+    //Move Delegate  DMove
     private delegate void DMove();
     private DMove[] Move = new DMove[countOfStates];
+
+    //Delegate for movings
+    public delegate void CustomEvent();
+    public CustomEvent OnPlayerCollisionWithCeilingEnterEvent;
+    public CustomEvent OnPlayerCollisionWithCeilingExitEvent;
+    public CustomEvent OnPlayerCollisionWithFloorStayEvent;
+    public CustomEvent OnPlayerCollisionWithFloorExitEvent;
+    public CustomEvent OnPlayerCollisionWithWallExitEvent;
+    public delegate void CustomIntEvent(int data);
+
+    public  CustomIntEvent OnPlayerCollisionWithWallStayEvent;
+
     private Player player;
     [SerializeField] private Vector2 velocity = new Vector2();
     [SerializeField] private float speed;
@@ -30,6 +43,7 @@ public class PlayerMoveComponent : MonoBehaviour
     private float teleportRange = 8f;
     private float BlockValue = 2;
     private float lastDirectionByX = 1;
+    private float directionByX;
     private int countOfAdditionalJumps, maxCountOfAdditionalJumps = 0;
     private bool isHorizontalMoveDelayActive;
     private float dashCallDown = .2f, teleportCallDown = .2f;
@@ -37,7 +51,7 @@ public class PlayerMoveComponent : MonoBehaviour
 
     private bool isCollidingWithWall;
     private bool isCollidingWithCeiling = false;
-    private int WallPositionInX;
+    [SerializeField]private int WallPositionInX;
     private float speedMultiplier = 1f;
 
     [SerializeField]
@@ -46,6 +60,11 @@ public class PlayerMoveComponent : MonoBehaviour
     private bool isTeleportUnlocked;
     [SerializeField] private GameObject TeleportPreview;
     bool isWallJumping = false;
+
+    
+
+
+
     private void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();
@@ -67,14 +86,14 @@ public class PlayerMoveComponent : MonoBehaviour
 
         countOfAdditionalJumps = maxCountOfAdditionalJumps;
         velocity = new Vector2();
-        EventHolder.OnPlayerCollisionWithCeilingEnterEvent.AddListener(OnCollisionCeilingEnter);
-        EventHolder.OnPlayerCollisionWithCeilingExitEvent.AddListener(OnCollisionCeilingExit);
-        EventHolder.OnPlayerCollisionWithFloorStayEvent.AddListener(OnCollisionFloorStay);
-        EventHolder.OnPlayerCollisionWithFloorExitEvent.AddListener(OnCollisionFloorExit);
+        OnPlayerCollisionWithCeilingEnterEvent += OnCollisionCeilingEnter;
+        OnPlayerCollisionWithCeilingExitEvent += OnCollisionCeilingExit;
+        OnPlayerCollisionWithFloorStayEvent += OnCollisionFloorStay;
+        OnPlayerCollisionWithFloorExitEvent += OnCollisionFloorExit;
         EventHolder.OnGUIDialogStarted.AddListener(OnDialogStarted);
         EventHolder.OnGUIDialogEnded.AddListener(OnDialogEnded);
-        EventHolder.OnPlayerCollisionWithWallStayEvent.AddListener(OnCollideWithWall);
-        EventHolder.OnPlayerCollisionWithWallExitEvent.AddListener(OnExitCollideWithWall);
+        OnPlayerCollisionWithWallStayEvent += OnCollideWithWall;
+        OnPlayerCollisionWithWallExitEvent += OnExitCollideWithWall;
 
         CalculatePhysicsVariables();
 
@@ -92,31 +111,20 @@ public class PlayerMoveComponent : MonoBehaviour
 
     private Player.State GetState(ref float directionByX)
     {
-        if (isInDialogue) return Player.State.DIALOG;
-        else if (willDash) return Player.State.DASH;
-        else if (isWallJumping) return Player.State.WALL_JUMP;
-        else if (isCollidingWithWall && !isGrounded) return Player.State.SLIDE_ON_WALL;
-        else if (!isGrounded && velocity.y >= 0) return Player.State.JUMP;
-        else if (!isGrounded && velocity.y < 0) return Player.State.FALL;
-        else if (directionByX != 0) return Player.State.WALK;
-        else return Player.State.IDLE;
-    }
+		if (isInDialogue) return Player.State.DIALOG;
+		else if (willDash) return Player.State.DASH;
+		else if (isWallJumping) return Player.State.WALL_JUMP;
+		else if (isCollidingWithWall && !isGrounded) return Player.State.SLIDE_ON_WALL;
+		else if (!isGrounded && velocity.y >= 0) return Player.State.JUMP;
+		else if (!isGrounded && velocity.y < 0) return Player.State.FALL;
+		else if (directionByX != 0) return Player.State.WALK;
+		else return Player.State.IDLE;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	public bool CanBGMove()
+	{
+        return directionByX == lastDirectionByX && isCollidingWithWall;
+	}
 
     /// <summary>
     /// Move Player and take a state in parameters
@@ -124,8 +132,7 @@ public class PlayerMoveComponent : MonoBehaviour
     /// <param name="state" description="Player's State after moving"></param>
     public void MovePlayer(out Player.State state, ref float directionByX)
     {
-
-        UpdateCheckDependencies(ref directionByX);
+       
         //speedMultiplier = Input.GetKey(runKey) ? 1 + 1f / 3f : 1;
         state = GetState(ref directionByX);
         Move[(int)state]();
@@ -168,14 +175,13 @@ public class PlayerMoveComponent : MonoBehaviour
     }
     private void MoveInWallJump()
     {
-
     }
 
     private void AirControll()
     {
         velocity.x = Mathf.Lerp(velocity.x, GetHorizontalDirection() * speed * speedMultiplier, 0.9f);
     }
-    private void UpdateCheckDependencies(ref float directionByX)
+    public  void UpdateCheckDependencies(ref float directionByX)
     {
         directionByX = Input.GetAxisRaw("Horizontal");
 
@@ -349,7 +355,7 @@ public class PlayerMoveComponent : MonoBehaviour
     {
         if (isInDialogue) return;
         if (isJumpJustPressed && isGrounded) StartCoroutine(JumpCoroutine());
-        if (isJumpJustPressed && isCollidingWithWall && !isGrounded) StartCoroutine(WallJump());
+        if (isJumpJustPressed && isCollidingWithWall && !isGrounded && !isCollidingWithCeiling) StartCoroutine(WallJump());
         if (isJumpJustPressed && !isGrounded && countOfAdditionalJumps > 0 && !isInDialogue)
         {
             StartCoroutine(JumpCoroutine());

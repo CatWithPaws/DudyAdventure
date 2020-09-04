@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class IntEvent : UnityEngine.Events.UnityEvent<int>
+{
+
+}
 public class EventHolder : MonoBehaviour
 {
     public static UnityEngine.Events.UnityEvent OnPlayerCollisionWithCeilingEnterEvent = new UnityEngine.Events.UnityEvent();
@@ -13,4 +17,5 @@ public class EventHolder : MonoBehaviour
     public static UnityEngine.Events.UnityEvent OnPlayerDeadEvent = new UnityEngine.Events.UnityEvent();
     public static UnityEngine.Events.UnityEvent OnGUIDialogStarted = new UnityEngine.Events.UnityEvent();
     public static UnityEngine.Events.UnityEvent OnGUIDialogEnded = new UnityEngine.Events.UnityEvent();
+    public static IntEvent OnPlayerMove = new IntEvent();
 }

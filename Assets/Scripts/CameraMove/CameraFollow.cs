@@ -24,6 +24,7 @@ public class CameraFollow : MonoBehaviour
 		{
             _target = FindObjectOfType<Player>().transform;
 		}
+        transform.position = new Vector3(_target.position.x, transform.position.y, transform.position.z);
     }
     void LateUpdate()
     {

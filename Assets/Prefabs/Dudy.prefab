@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &156563
 Transform:
   m_ObjectHideFlags: 0
@@ -240,6 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad204beca8a870c4883836bd8308fa85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerMove: {fileID: 0}
 --- !u!1 &2547078856441126083
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,6 +314,7 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1
+  playerMove: {fileID: 0}
 --- !u!1 &2547078856843196701
 GameObject:
   m_ObjectHideFlags: 0
@@ -427,6 +429,9 @@ MonoBehaviour:
   min_jump_height: 2.2
   jumping_time: 0.75
   isGrounded: 0
+  WallPositionInX: 0
+  isDashUnlocked: 0
+  isTeleportUnlocked: 0
   TeleportPreview: {fileID: 156562}
 --- !u!50 &2547078856843196700
 Rigidbody2D:
@@ -468,6 +473,7 @@ MonoBehaviour:
   PauseMenu: {fileID: 5747063792273957651}
   Music: {fileID: 0}
   currentState: 0
+  directionByX: 0
 --- !u!95 &2547078856843196699
 Animator:
   serializedVersion: 3
@@ -596,7 +602,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cadeb8dd06fd4da408b876486a81a9d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerMove: {fileID: 0}
   side: 1
+  whatIsWall:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &8249121079515353709
 GameObject:
   m_ObjectHideFlags: 0
@@ -733,7 +743,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cadeb8dd06fd4da408b876486a81a9d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerMove: {fileID: 0}
   side: -1
+  whatIsWall:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1001 &5846841555078505892
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -774,7 +788,7 @@ PrefabInstance:
     - target: {fileID: 3404674896147811814, guid: 0e6da616daf3f284f940bd17936f2a7b,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -55.94983
+      value: -55.94995
       objectReference: {fileID: 0}
     - target: {fileID: 3875832601186320650, guid: 0e6da616daf3f284f940bd17936f2a7b,
         type: 3}
@@ -815,6 +829,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 6207203056212915920, guid: 0e6da616daf3f284f940bd17936f2a7b,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -23.400024
       objectReference: {fileID: 0}
     - target: {fileID: 7542468291286203009, guid: 0e6da616daf3f284f940bd17936f2a7b,
         type: 3}

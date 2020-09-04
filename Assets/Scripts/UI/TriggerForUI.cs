@@ -12,5 +12,6 @@ public class TriggerForUI : MonoBehaviour
 		{
 			tutorialText.MakeTransition();
 		}
+		gameObject.SetActive(false);
 	}
 }

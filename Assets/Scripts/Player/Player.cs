@@ -5,10 +5,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerMoveComponent))]
 [RequireComponent(typeof(PlayerAnimationComponent))]
 
-public class IntEvent : UnityEngine.Events.UnityEvent<int>
-{
 
-}
 
 public class Player : MonoBehaviour
 {
@@ -25,7 +22,7 @@ public class Player : MonoBehaviour
         SLIDE_ON_WALL,
         DIALOG
     }
-
+    public static Player Instance;
     [SerializeField] private PlayerMoveComponent playerMove;
     [SerializeField] private PlayerAnimationComponent playerAnimation;
     [SerializeField] private GameObject PressFText;
@@ -46,9 +43,11 @@ public class Player : MonoBehaviour
             currentState = value;
         }
     }
-    private float directionByX;
+    public  float directionByX;
     private void Awake()
     {
+        if (!Instance) Instance = this;
+        else if (Instance != this) Destroy(gameObject);
         EventHolder.OnPlayerDeadEvent.AddListener(OnPlayerDead);
         EventHolder.OnGUIDialogStarted.AddListener(DisablePressFText);
         EventHolder.OnGUIDialogEnded.AddListener(EnablePressFText);
@@ -64,18 +63,25 @@ public class Player : MonoBehaviour
             audioSource.volume = GlobalVars.Instance.GetSettingData().MusicVolume;
             MusicObject.Instance?.PlayMusic();
         }
+        
     }
+    public bool CanBGMove()
+	{
+        return playerMove.CanBGMove();
+	}
     private void Update()
     {
+        playerMove.CheckInput();
+        playerMove.UpdateCheckDependencies(ref directionByX);
         if (Input.GetKeyDown(KeyCode.Escape)) {
            
             TogglePause();
         }
         Time.timeScale = isInPause ? 0 : 1;
 
-        playerMove.CheckInput();
+       
         playerMove.CatchMove();
-        print(currentState);
+       // print(currentState);
     }
 
     private void TogglePause()

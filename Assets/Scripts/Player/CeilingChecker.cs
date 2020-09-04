@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class CeilingChecker : MonoBehaviour
 {
+    [SerializeField] private PlayerMoveComponent playerMove;
+    private void Start()
+    {
+        playerMove = FindObjectOfType<PlayerMoveComponent>() as PlayerMoveComponent;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.isTrigger)
 
         {
-            EventHolder.OnPlayerCollisionWithCeilingEnterEvent.Invoke();
+            playerMove.OnCollisionCeilingEnter();
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -17,7 +22,7 @@ public class CeilingChecker : MonoBehaviour
         if (!collision.isTrigger)
 
         {
-            EventHolder.OnPlayerCollisionWithCeilingExitEvent.Invoke();
+            playerMove.OnCollisionCeilingExit();
         }
     }
 }
