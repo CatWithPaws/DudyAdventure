@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerMoveComponent))]
 [RequireComponent(typeof(PlayerAnimationComponent))]
@@ -78,10 +79,11 @@ public class Player : MonoBehaviour
             TogglePause();
         }
         Time.timeScale = isInPause ? 0 : 1;
+        currentState = playerMove.GetState(ref directionByX);
 
-       
+
         playerMove.CatchMove();
-       // print(currentState);
+        print(currentState);
     }
 
     private void TogglePause()
@@ -97,14 +99,15 @@ public class Player : MonoBehaviour
         PauseMenu.SetActive(isInPause);
 
     }
-
     
     private void FixedUpdate()
     {
-        playerMove.MovePlayer(out currentState,ref directionByX);
+        Time.timeScale = 0.3f;
+        playerMove.MovePlayer(ref directionByX);
     }
     private void LateUpdate()
     {
+        
         playerAnimation.AnimatePlayer(ref currentState,ref directionByX);
     }
 
@@ -149,6 +152,7 @@ public class Player : MonoBehaviour
     
     public void ReturnToMenu() {
         ResumeTime();
+        FileManager.Instance.SaveGame();
         SceneManager.LoadScene("Menu");
     }
     public void ResumeGame()

@@ -23,7 +23,11 @@ public class FileManager : MonoBehaviour
             streamWriter.Write(JsonConvert.SerializeObject(data));
         }
     }
-    public  void SetSettingsPath(string path)
+	private void OnApplicationQuit()
+	{
+        SaveGame();
+	}
+	public  void SetSettingsPath(string path)
     {
         settingsPath = path + "/Settings.stg";
     }

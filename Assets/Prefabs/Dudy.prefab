@@ -286,7 +286,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0027275085, y: -1.0334167}
+  m_Offset: {x: 0.0023498535, y: -1.0334167}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -297,7 +297,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.71923065, y: 0.10771179}
+  m_Size: {x: 0.7077484, y: 0.10771179}
   m_EdgeRadius: 0
 --- !u!114 &2547078856441126092
 MonoBehaviour:
@@ -799,6 +799,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnSFXSliderChanged
+      objectReference: {fileID: 0}
+    - target: {fileID: 4493201827948029491, guid: 0e6da616daf3f284f940bd17936f2a7b,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.045410156
       objectReference: {fileID: 0}
     - target: {fileID: 5542630518955861331, guid: 0e6da616daf3f284f940bd17936f2a7b,
         type: 3}

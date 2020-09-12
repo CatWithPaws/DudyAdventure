@@ -25,6 +25,8 @@ public class PlayerMoveComponent : MonoBehaviour
     [SerializeField] private Vector2 velocity = new Vector2();
     [SerializeField] private float speed;
 
+    private Player.State playerState;
+
     [SerializeField] private LayerMask Detect;
     [SerializeField] private float max_jump_height, min_jump_height, jumping_time;
     private Rigidbody2D rigidbody;
@@ -61,7 +63,7 @@ public class PlayerMoveComponent : MonoBehaviour
     [SerializeField] private GameObject TeleportPreview;
     bool isWallJumping = false;
 
-    
+    private Player.State _state;
 
 
 
@@ -98,27 +100,30 @@ public class PlayerMoveComponent : MonoBehaviour
         CalculatePhysicsVariables();
 
         dashPower = max_jump_velocity;
+
+        
     }
 
-
-
-    private void CalculatePhysicsVariables()
+	private void CalculatePhysicsVariables()
     {
         gravity = 2 * max_jump_height * BlockValue / (jumping_time * jumping_time);
         min_jump_velocity = Mathf.Sqrt(gravity * min_jump_height * BlockValue);
         max_jump_velocity = Mathf.Sqrt(gravity * max_jump_height * BlockValue);
     }
 
-    private Player.State GetState(ref float directionByX)
+    public Player.State GetState(ref float directionByX)
     {
-		if (isInDialogue) return Player.State.DIALOG;
-		else if (willDash) return Player.State.DASH;
-		else if (isWallJumping) return Player.State.WALL_JUMP;
-		else if (isCollidingWithWall && !isGrounded) return Player.State.SLIDE_ON_WALL;
-		else if (!isGrounded && velocity.y >= 0) return Player.State.JUMP;
-		else if (!isGrounded && velocity.y < 0) return Player.State.FALL;
-		else if (directionByX != 0) return Player.State.WALK;
-		else return Player.State.IDLE;
+        Player.State state;
+		if (isInDialogue) state =  Player.State.DIALOG;
+		else if (willDash) state = Player.State.DASH;
+		else if (isWallJumping) state =  Player.State.WALL_JUMP;
+		else if (isCollidingWithWall && !isGrounded) state= Player.State.SLIDE_ON_WALL;
+		else if (!isGrounded && velocity.y >= 0) state= Player.State.JUMP;
+		else if (!isGrounded && velocity.y < 0) state= Player.State.FALL;
+		else if (directionByX != 0) state= Player.State.WALK;
+		else state =  Player.State.IDLE;
+        playerState = state;
+        return state;
 	}
 
 	public bool CanBGMove()
@@ -130,12 +135,10 @@ public class PlayerMoveComponent : MonoBehaviour
     /// Move Player and take a state in parameters
     /// </summary>
     /// <param name="state" description="Player's State after moving"></param>
-    public void MovePlayer(out Player.State state, ref float directionByX)
+    public void MovePlayer( ref float directionByX)
     {
-       
         //speedMultiplier = Input.GetKey(runKey) ? 1 + 1f / 3f : 1;
-        state = GetState(ref directionByX);
-        Move[(int)state]();
+        Move[(int)playerState]();
         TeleportPreview.transform.position = transform.position + GetTeleportPosition();
         rigidbody.velocity = velocity;
         lastPos = transform.position;
@@ -225,7 +228,7 @@ public class PlayerMoveComponent : MonoBehaviour
 
     private void ControlGravity()
     {
-        if (lastPos.y == transform.position.y && velocity.y < 0) { velocity.y = 0; return; }
+        if (Math.Round(lastPos.y,3) == Math.Round(transform.position.y,3) && velocity.y < 0) { velocity.y = 0; return; }
         velocity.y -= gravity * Time.fixedDeltaTime;
         velocity.y = Mathf.Clamp(velocity.y, -max_jump_velocity, max_jump_velocity);
     }
@@ -367,7 +370,6 @@ public class PlayerMoveComponent : MonoBehaviour
     public void CheckInput()
     {
         isTeleportJustPressed = Input.GetKeyDown(teleportKey);
-
         isJumpJustPressed = Input.GetKeyDown(jumpKey);
         isJumpJustReleased = Input.GetKeyUp(jumpKey);
         isDashJustPressed = Input.GetKeyDown(dashKey);
